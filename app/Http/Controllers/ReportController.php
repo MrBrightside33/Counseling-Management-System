@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Counselor;
 use App\Models\Student;
+use App\Services\ClassDiagramDocxExporter;
 use App\Services\ReportDocxExporter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -36,6 +37,11 @@ class ReportController extends Controller
                 ->orderByDesc('time')
                 ->get(),
         ]);
+    }
+
+    public function exportClassDiagram(ClassDiagramDocxExporter $classDiagram): BinaryFileResponse
+    {
+        return $classDiagram->download();
     }
 
     public function exportSummary(Request $request): BinaryFileResponse

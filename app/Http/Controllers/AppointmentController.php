@@ -27,8 +27,15 @@ class AppointmentController extends Controller
     ];
 
     public const TIME_SLOTS = [
-        '8:00 AM', '9:00 AM', '10:00 AM', '11:00 AM',
-        '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM',
+        '8:00 AM',
+        '9:00 AM',
+        '10:00 AM',
+        '11:00 AM',
+        '1:00 PM',
+        '2:00 PM',
+        '3:00 PM',
+        '4:00 PM',
+        '5:00 PM',
     ];
 
     public function index(Request $request): View
@@ -65,7 +72,7 @@ class AppointmentController extends Controller
         $validated = $request->validate([
             'student_id' => ['required', 'exists:students,id'],
             'counselor_id' => ['required', 'exists:counselors,id'],
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date', 'after_or_equal:today'],
             'time' => ['required', 'string', 'max:20'],
             'type' => ['required', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -94,10 +101,10 @@ class AppointmentController extends Controller
         $validator = Validator::make($request->all(), [
             'student_id' => ['required', 'exists:students,id'],
             'counselor_id' => ['required', 'exists:counselors,id'],
-            'date' => ['required', 'date'],
+            'date' => ['required', 'date', 'after_or_equal:today'],
             'time' => ['required', 'string', 'max:20'],
             'type' => ['required', 'string', 'max:100'],
-            'status' => ['required', 'in:'.implode(',', self::STATUSES)],
+            'status' => ['required', 'in:' . implode(',', self::STATUSES)],
             'notes' => ['nullable', 'string', 'max:2000'],
             'return_to' => ['nullable', 'string', 'in:appointments'],
         ]);
@@ -135,7 +142,7 @@ class AppointmentController extends Controller
     public function updateStatus(Request $request, Appointment $appointment): RedirectResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:'.implode(',', self::STATUSES)],
+            'status' => ['required', 'in:' . implode(',', self::STATUSES)],
             'counselor_id' => ['required', 'exists:counselors,id'],
         ]);
 
@@ -151,20 +158,20 @@ class AppointmentController extends Controller
     {
         $appointment->load('student');
         $counselorId = $appointment->counselor_id;
-        $label = $appointment->student->name.' — '.$appointment->formatted_date.' at '.$appointment->time;
+        $label = $appointment->student->name . ' — ' . $appointment->formatted_date . ' at ' . $appointment->time;
 
         $appointment->delete();
         $this->syncCounselorSessionCount($counselorId);
 
         return redirect()
             ->route('appointments.index')
-            ->with('success', 'Appointment deleted: '.$label);
+            ->with('success', 'Appointment deleted: ' . $label);
     }
 
     private function syncCounselorSessionCount(int $counselorId): void
     {
         $counselor = Counselor::find($counselorId);
-        if (! $counselor) {
+        if (!$counselor) {
             return;
         }
 

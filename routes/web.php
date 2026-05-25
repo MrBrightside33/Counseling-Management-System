@@ -47,4 +47,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/export/summary', [ReportController::class, 'exportSummary'])->name('reports.export.summary');
     Route::get('/reports/export/student/{student}', [ReportController::class, 'exportStudent'])->name('reports.export.student');
     Route::patch('/reports/appointments/{appointment}/notes', [ReportController::class, 'updateSessionNotes'])->name('reports.session-notes');
+    Route::get('/reports/class-diagram', [ReportController::class, 'exportClassDiagram'])->name('reports.class-diagram');
 });
